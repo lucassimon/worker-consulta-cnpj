@@ -14,7 +14,7 @@ class JobsSQLAlchemyRepository():
 
     def update_status(self, job_id, new_status) -> None:
         try:
-            sql = """ UPDATE jobs SET status = %s WHERE id = %s"""
+            sql = """ UPDATE job SET status = %s WHERE id = %s"""
 
             # create a new cursor
             self.adapter.connect()
@@ -33,7 +33,7 @@ class JobsSQLAlchemyRepository():
 
     def update_duration(self, job_id, duration) -> None:
         try:
-            sql = """ UPDATE jobs SET duration = %s WHERE id = %s"""
+            sql = """ UPDATE job SET duration = %s WHERE id = %s"""
             self.adapter.connect()
             cur = self.adapter.cur
             cur.execute(sql, (duration, job_id))
@@ -55,7 +55,7 @@ class ResultSQLAlchemyRepository():
     def insert(self, data) -> None:
         try:
             sql = """
-                INSERT INTO results(
+                INSERT INTO result(
                     job_id,
                     atividade_principal,
                     cnpj,
@@ -75,8 +75,11 @@ class ResultSQLAlchemyRepository():
                     numero,
                     porte,
                     telefone,
-                    uf
-                ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    uf,
+                    source,
+                    creator_id,
+                    creator_email
+                ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
             """
             self.adapter.connect()
             cur = self.adapter.cur
@@ -103,6 +106,9 @@ class ResultSQLAlchemyRepository():
                     data['porte'],
                     data['telefone'],
                     data['uf'],
+                    data['source'],
+                    data['creator_id'],
+                    data['creator_email'],
                 )
             )
             updated_rows = cur.rowcount

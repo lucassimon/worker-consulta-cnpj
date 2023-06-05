@@ -12,7 +12,7 @@ class PostgresAdapter:
         self.conn = None
 
     def connect(self):
-        # self.conn = psycopg2.connect(self.dsn)
+        # self.conn = psycopg2.connect(dsn)
         self.conn = psycopg2.connect(
             database=self.db,
             user=self.username,
@@ -22,10 +22,6 @@ class PostgresAdapter:
         )
 
         self.cur = self.conn.cursor()
-
-    def execute_query(self, query):
-        self.cur.execute(query)
-        self.conn.commit()
 
     def close(self):
         self.cur.close()

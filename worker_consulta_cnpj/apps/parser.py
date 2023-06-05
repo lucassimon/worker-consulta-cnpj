@@ -114,10 +114,11 @@ class ParseSiteReceita:
             "bairro": self.get_bairro(tree),
             "municipio": self.get_municipio(tree),
             "uf": self.get_uf(tree),
+            "source": "ParseSiteReceita",
             "email": self.get_email(tree),
             "telefone": self.get_telefone(tree),
             "data_pesquisa": self.get_data_pesquisa(tree),
-            "hora_pesquisa": self.get_hora_pesquisa(tree)
+            "hora_pesquisa": self.get_hora_pesquisa(tree),
         }
 
     def parse_local_example(self):

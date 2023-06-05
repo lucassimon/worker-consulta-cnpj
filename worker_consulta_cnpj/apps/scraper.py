@@ -1,12 +1,22 @@
 import typing
+# import time
 from datetime import datetime
-from playwright.sync_api import sync_playwright
+# from playwright.sync_api import sync_playwright
 import structlog
 from apps.hcaptcha import SolveHCaptcha
 from apps.parser import ParseSiteReceita
 from apps.repositories import JobsSQLAlchemyRepository, ResultSQLAlchemyRepository, EmailRepository
 
+# import hcaptcha_challenger as solver
+# from hcaptcha_challenger import HolyChallenger
+# from hcaptcha_challenger.exceptions import ChallengePassed
+
+
 logger = structlog.get_logger()
+# Init local-side of the ModelHub
+# solver.install()
+
+
 
 
 class SiteReceita:
@@ -23,12 +33,17 @@ class ScrapperPlaywright:
         self.db_adapter = db_adapter
         self.smtp_adapter = smtp_adapter
         self.job = job
+
         self.job_id = job['id']
-        self.cnpj = job['cnpj']
+        self.cnpj = job['cpf_cnpj']
         self.site = site()
         self.parser = parser()
         self.captcha = SolveHCaptcha()
         self.start_duration = start_duration
+
+    def duration(self):
+        later = datetime.now()
+        return (later - self.start_duration).total_seconds()
 
     def run(self):
         repo_results = ResultSQLAlchemyRepository(adapter=self.db_adapter)
@@ -53,16 +68,28 @@ class ScrapperPlaywright:
             self.captcha.execute()
 
             # tab.locator(self.xpath_submit).click()
+
+
+            # challenger = solver.new_challenger(screenshot=True, debug=True)
+            # Replace selenium.webdriver.Chrome with CTX
+            # ctx = solver.get_challenge_ctx(silence=False)
+            # ctx.get("https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/Cnpjreva_Solicitacao.asp")
+            # hit_challenge(ctx=ctx, challenger=challenger)
+
+
             logger.info('Enviando requisição clicando no campo submit')
 
             data = self.parser.execute(local=True, page=None)
-            data.update({'job_id': self.job_id})
+            data.update({
+                'job_id': self.job_id,
+                'creator_id': self.job['creator_id'],
+                'creator_email': self.job['creator_email']
+            })
 
             repo_results.insert(data=data)
 
-            later = datetime.now()
             repo_jobs.update_status(self.job_id, 'processed')
-            difference = (later - self.start_duration).total_seconds()
+            difference = self.duration()
             repo_jobs.update_duration(self.job_id, difference)
             repo_email.finish(job=self.job)
 
