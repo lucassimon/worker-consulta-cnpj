@@ -55,7 +55,8 @@ def callback(ch, method, properties, body):
 
 def get_channel():
     # connect and get channel
-    parameters = pika.URLParameters('amqp://guest:guest@localhost:5672')
+    uri = os.getenv("RABBITMQ_CONNECTION")
+    parameters = pika.URLParameters(uri)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     # declare queue with max priority
