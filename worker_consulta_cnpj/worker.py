@@ -30,7 +30,7 @@ def callback(ch, method, properties, body):
             port=os.getenv("POSTGRES_PORT")
         )
 
-        smtp_adapter = SmtpLibAdapter(host='localhost', port=1025)
+        smtp_adapter = SmtpLibAdapter(host=os.getenv("MAILHOG_HOST"), port=os.getenv("MAILHOG_PORT"))
 
         scrapper = ScrapperPlaywright(
             db_adapter=postgres_adapter,
@@ -56,6 +56,7 @@ def callback(ch, method, properties, body):
 def get_channel():
     # connect and get channel
     uri = os.getenv("RABBITMQ_CONNECTION")
+    logger.info(uri)
     parameters = pika.URLParameters(uri)
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
